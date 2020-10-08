@@ -1,6 +1,6 @@
-BIN_NAME = aex2init
+BIN_NAME = aexinit
 
-CXX = x86_64-aex2-elf-gcc
+CC = x86_64-aex2-elf-gcc
 LD  = ld
 
 MKDIR = mkdir -p
@@ -9,27 +9,17 @@ BIN  := bin/
 DEP_DEST := $(BIN)dep/
 OBJ_DEST := $(BIN)obj/
 
-CXXFILES  := $(shell find . -type f -name '*.cpp')
-HXXFILES  := $(shell find . -type f -name '*.hpp')
-OBJS      := $(patsubst %.o, $(OBJ_DEST)%.o, $(CXXFILES:.cpp=.cpp.o))
+CFILES  := $(shell find . -type f -name '*.c')
+HFILES  := $(shell find . -type f -name '*.h')
+OBJS      := $(patsubst %.o, $(OBJ_DEST)%.o, $(CFILES:.c=.c.o))
 
 BIN_OBJ = $(BIN)$(BIN_NAME).elf
 
-GFLAGS = -O3 -Wall -Wextra -nostdlib -pipe
+GFLAGS = -O3 -pipe
 
-INCLUDES := -I. -I$(ARCH) -Iinclude/ -I../../kernel/include \
-		    -I../../kernel/arch/x64/include
+INCLUDES := -I. -Iinclude/
 
-CXXFLAGS := $(GFLAGS)     \
-	-std=c++17           \
-	-fno-rtti            \
-	-fno-exceptions      \
-	-ffreestanding       \
-	-masm=intel          \
-	-mcmodel=kernel      \
-	-fno-pic             \
-	-fno-stack-protector \
-	-mno-red-zone        \
+CFLAGS := $(GFLAGS) \
 	$(INCLUDES)
 
 ASFLAGS := -felf64
@@ -41,11 +31,11 @@ LDFLAGS := $(GFLAGS)        \
 
 format:
 	@$(MKDIR) $(BIN)
-	clang-format -style=file -i ${CXXFILES} ${HXXFILES}
+	clang-format -style=file -i ${CFILES} ${HFILES}
 
 all: $(OBJS)
 	@$(MKDIR) $(BIN)
-	@$(LD) -r -o $(BIN_OBJ) $(OBJS)
+	$(CC) $(CFLAGS) -o $(BIN_OBJ) $(OBJS)
 
 include $(shell find $(DEP_DEST) -type f -name *.d)
 
@@ -55,7 +45,7 @@ copy:
 clean:
 	rm -rf $(BIN)
 
-$(OBJ_DEST)%.cpp.o : %.cpp
+$(OBJ_DEST)%.c.o : %.c
 	@$(MKDIR) ${@D}
 	@$(MKDIR) $(dir $(DEP_DEST)$*)
-	$(CXX) $(CXXFLAGS) -c $< -o $@ -MMD -MT $@ -MF $(DEP_DEST)$*.cpp.d
+	$(CC) $(CFLAGS) -c $< -o $@ -MMD -MT $@ -MF $(DEP_DEST)$*.cpp.d
