@@ -3,11 +3,18 @@
 #include <unistd.h>
 
 int main(int argc, char* argv[]) {
-    for (int i = 0; i < 5; i++)
-        syscall(251 + i, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE);
+    fwrite("test\n", 5, 1, stdout);
 
-    // sleep(3);
-    fwrite("test\n", 5, 5, stdout);
+    FILE* file = fopen("/sys/test.txt", "r");
+
+    char buffer[72];
+    fread(buffer, 64, 1, file);
+
+    buffer[64] = '\0';
+    fwrite(buffer, 64, 1, stdout);
+
+    putc('\n', stdout);
+    printf("asdada %s\n", "it works");
 
     return 0;
 }
