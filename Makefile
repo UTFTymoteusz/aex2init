@@ -13,7 +13,7 @@ CFILES  := $(shell find . -type f -name '*.c')
 HFILES  := $(shell find . -type f -name '*.h')
 OBJS      := $(patsubst %.o, $(OBJ_DEST)%.o, $(CFILES:.c=.c.o))
 
-BIN_OBJ = $(BIN)$(BIN_NAME).elf
+BIN_OBJ = $(BIN)$(BIN_NAME)
 
 GFLAGS = -O3 -pipe
 

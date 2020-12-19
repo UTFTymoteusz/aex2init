@@ -14,11 +14,11 @@ int main(int argc, char* argv[]) {
     pid_t pid = fork();
     if (!pid) {
         char* argv[] = {
-            "utest.elf",
+            "utest",
             NULL,
         };
 
-        execve("/sys/utest.elf", argv, NULL);
+        execve("/sys/utest", argv, NULL);
     }
 
     while (true) {
