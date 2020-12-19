@@ -6,20 +6,12 @@
 #include <stdio.h>
 #include <unistd.h>
 
-void _set_errno(int);
-void test();
 int  count_ttys();
+void start_gettys(int count);
+void exec_getty(int id);
 
 int main(int argc, char* argv[]) {
-    pid_t pid = fork();
-    if (!pid) {
-        char* argv[] = {
-            "utest",
-            NULL,
-        };
-
-        execve("/sys/utest", argv, NULL);
-    }
+    start_gettys(count_ttys());
 
     while (true) {
         int   status;
@@ -41,4 +33,43 @@ int main(int argc, char* argv[]) {
     }
 
     return 0;
+}
+
+int count_ttys() {
+    int count = 0;
+
+    for (int i = 0; i < 32; i++) {
+        char buffer[32];
+
+        sprintf(buffer, "/dev/tty%i", i);
+        if (access(buffer, F_OK) == -1)
+            break;
+
+        count++;
+    }
+
+    return count;
+}
+
+void start_gettys(int count) {
+    for (int i = 0; i < count; i++) {
+        pid_t pid = fork();
+        if (pid)
+            continue;
+
+        exec_getty(i);
+    }
+}
+
+void exec_getty(int id) {
+    char buffer[64];
+    sprintf(buffer, "/dev/tty%i", id);
+
+    char* argv[] = {
+        "getty",
+        buffer,
+        NULL,
+    };
+
+    execve("/bin/getty", argv, NULL);
 }
