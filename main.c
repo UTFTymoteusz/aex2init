@@ -8,11 +8,18 @@
 
 void _set_errno(int);
 void test();
+int  count_ttys();
 
 int main(int argc, char* argv[]) {
     pid_t pid = fork();
-    if (!pid)
-        execve("/sys/utest.elf", NULL, NULL);
+    if (!pid) {
+        char* argv[] = {
+            "utest.elf",
+            NULL,
+        };
+
+        execve("/sys/utest.elf", argv, NULL);
+    }
 
     while (true) {
         int   status;
@@ -23,6 +30,8 @@ int main(int argc, char* argv[]) {
                 printf("init: No children left, exiting...\n", pid, status);
                 break;
             }
+            else
+                perror("init: waitpid: ");
 
             sleep(2);
             continue;
