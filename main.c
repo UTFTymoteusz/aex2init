@@ -1,26 +1,35 @@
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
 
 void _set_errno(int);
+void test();
 
 int main(int argc, char* argv[]) {
-    syscall(126);
-    printf("errno: %i\n", errno);
+    pid_t pid = fork();
+    if (!pid)
+        execve("/sys/utest.elf", NULL, NULL);
 
-    fwrite("test\n", 5, 1, stdout);
+    while (true) {
+        int   status;
+        pid_t pid = wait(&status);
 
-    FILE* file = fopen("/sys/test.txt", "r");
+        if (pid == -1) {
+            if (errno == ECHILD) {
+                printf("init: No children left, exiting...\n", pid, status);
+                break;
+            }
 
-    char buffer[72];
-    fread(buffer, 64, 1, file);
+            sleep(2);
+            continue;
+        }
 
-    buffer[64] = '\0';
-    fwrite(buffer, 64, 1, stdout);
-
-    putc('\n', stdout);
-    printf("asdada %s\n", "it works");
+        printf("init: pid%i exited with a code %i\n", pid, status);
+    }
 
     return 0;
 }
