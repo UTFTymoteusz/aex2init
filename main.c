@@ -11,6 +11,19 @@ void start_gettys(int count);
 void exec_getty(int id);
 
 int main(int argc, char* argv[]) {
+    printf("init: aaa\n");
+
+    if (!fork()) {
+        char* argv[] = {
+            "utest",
+            NULL,
+        };
+
+        printf("asdasda\n");
+
+        execve("/sys/utest", argv, NULL);
+    }
+
     start_gettys(count_ttys());
 
     while (true) {
