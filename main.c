@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <syscallids.h>
 #include <unistd.h>
 
 int  count_ttys();
@@ -21,7 +22,17 @@ int main(int argc, char* argv[]) {
 
         printf("asdasda\n");
 
+        chdir("/sys/");
         execve("/sys/utest", argv, NULL);
+    }
+    else {
+        int status;
+        wait(&status);
+
+        if (status != 0)
+            syscall(SYS_PANIC);
+        else
+            printf("utest passed, woohoo\n");
     }
 
     start_gettys(count_ttys());
@@ -36,7 +47,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
             else
-                perror("init: waitpid: ");
+                perror("init: waitpid:");
 
             sleep(2);
             continue;
