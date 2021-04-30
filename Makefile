@@ -15,7 +15,7 @@ OBJS      := $(patsubst %.o, $(OBJ_DEST)%.o, $(CFILES:.c=.c.o))
 
 BIN_OBJ = $(BIN)$(BIN_NAME)
 
-GFLAGS = -O3 -pipe
+GFLAGS = -O3 -pipe -flto
 
 INCLUDES := -I. -Iinclude/
 
