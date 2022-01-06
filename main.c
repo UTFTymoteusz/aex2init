@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <syscallids.h>
 #include <unistd.h>
 
@@ -12,8 +13,23 @@ void start_gettys(int count);
 void exec_getty(int id);
 
 int main(int argc, char* argv[]) {
-    printf("init: aaa\n");
+    /*char* asdff[] = {
+        "manbong",
+        "/syscall.2.a2md",
+        "-",
+        NULL,
+    };
 
+    chdir("/");
+    execve("/bin/manbong", asdff, NULL);*/
+
+    printf("init: aaa\n");
+    setsid();
+
+    int bong = tcsetpgrp(STDOUT_FILENO, getpid());
+    printf("%i, %s\n", bong, strerror(errno));
+
+    // while (true)
     if (!fork()) {
         char* argv[] = {
             "utest",
@@ -29,13 +45,14 @@ int main(int argc, char* argv[]) {
         int status;
         wait(&status);
 
-        if (status != 0)
-            syscall(SYS_PANIC);
-        else
-            printf("utest passed, woohoo\n");
+#ifdef __aex__
+        status != 0 ? syscall(SYS_PANIC) : printf("utest passed, woohoo\n");
+#else
+        status != 0 ? exit(EXIT_FAILURE) : printf("utest passed, woohoo\n");
+#endif
     }
 
-    start_gettys(count_ttys());
+    // start_gettys(count_ttys());
 
     while (true) {
         int   status;
@@ -47,7 +64,7 @@ int main(int argc, char* argv[]) {
                 break;
             }
             else
-                perror("init: waitpid:");
+                perror("init: waitpid");
 
             sleep(2);
             continue;
